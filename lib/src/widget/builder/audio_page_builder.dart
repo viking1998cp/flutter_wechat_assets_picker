@@ -1,19 +1,20 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/5/21 14:18
+///
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wechat_picker_library/wechat_picker_library.dart';
 
-import '../../constants/constants.dart';
-import '../../internals/singleton.dart';
+import '../../constants/extensions.dart';
+import '../../internal/methods.dart';
+import '../../internal/singleton.dart';
+import '../scale_text.dart';
 
 class AudioPageBuilder extends StatefulWidget {
-  const AudioPageBuilder({super.key, required this.asset});
+  const AudioPageBuilder({Key? key, required this.asset}) : super(key: key);
 
   /// Asset currently displayed.
   /// 展示的资源
@@ -31,8 +32,7 @@ class _AudioPageBuilderState extends State<AudioPageBuilder> {
 
   /// Create a [VideoPlayerController] instance for the page builder state.
   /// 创建一个 [VideoPlayerController] 的实例
-  VideoPlayerController get controller => _controller!;
-  VideoPlayerController? _controller;
+  late final VideoPlayerController _controller;
 
   /// Whether the audio loaded.
   /// 音频是否已经加载完成
@@ -44,11 +44,11 @@ class _AudioPageBuilderState extends State<AudioPageBuilder> {
 
   /// Whether the controller is playing.
   /// 播放控制器是否在播放
-  bool get isControllerPlaying => _controller?.value.isPlaying == true;
+  bool get isControllerPlaying => _controller.value.isPlaying;
 
   /// Duration of the audio.
   /// 音频的时长
-  Duration assetDuration = Duration.zero;
+  late final Duration assetDuration;
 
   @override
   void initState() {
@@ -57,29 +57,13 @@ class _AudioPageBuilderState extends State<AudioPageBuilder> {
   }
 
   @override
-  void didUpdateWidget(AudioPageBuilder oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.asset != oldWidget.asset) {
-      _controller
-        ?..removeListener(audioPlayerListener)
-        ..pause()
-        ..dispose();
-      isLoaded = false;
-      isPlaying = false;
-      assetDuration = Duration.zero;
-      openAudioFile();
-    }
-  }
-
-  @override
   void dispose() {
     /// Stop and dispose player instance to stop playing
     /// when dispose (e.g. page switched).
     /// 状态销毁时停止并销毁实例（例如页面切换时）
-    _controller
-      ?..removeListener(audioPlayerListener)
-      ..pause()
-      ..dispose();
+    _controller.pause();
+    _controller.removeListener(audioPlayerListener);
+    _controller.dispose();
     super.dispose();
   }
 
@@ -89,18 +73,11 @@ class _AudioPageBuilderState extends State<AudioPageBuilder> {
     try {
       final String? url = await widget.asset.getMediaUrl();
       assetDuration = Duration(seconds: widget.asset.duration);
-      _controller = VideoPlayerController.networkUrl(Uri.parse(url!));
-      await controller.initialize();
-      controller.addListener(audioPlayerListener);
-    } catch (e, s) {
-      FlutterError.presentError(
-        FlutterErrorDetails(
-          exception: e,
-          stack: s,
-          library: packageName,
-          silent: true,
-        ),
-      );
+      _controller = VideoPlayerController.network(url!);
+      await _controller.initialize();
+      _controller.addListener(audioPlayerListener);
+    } catch (e) {
+      realDebugPrint('Error when opening audio file: $e');
     } finally {
       isLoaded = true;
       if (mounted) {
@@ -120,14 +97,14 @@ class _AudioPageBuilderState extends State<AudioPageBuilder> {
     }
 
     /// Add the current position into the stream.
-    durationStreamController.add(controller.value.position);
+    durationStreamController.add(_controller.value.position);
   }
 
   void playButtonCallback() {
     if (isPlaying) {
-      controller.pause();
+      _controller.pause();
     } else {
-      controller.play();
+      _controller.play();
     }
   }
 
@@ -191,7 +168,7 @@ class _AudioPageBuilderState extends State<AudioPageBuilder> {
       onLongPressHint:
           Singleton.textDelegate.semanticsTextDelegate.sActionPlayHint,
       child: ColoredBox(
-        color: context.theme.colorScheme.background,
+        color: context.themeData.backgroundColor,
         child: isLoaded
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,

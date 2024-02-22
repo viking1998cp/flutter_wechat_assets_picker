@@ -1,13 +1,14 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/5/30 15:39
+///
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:wechat_assets_picker_demo/l10n/gen/app_localizations.dart';
 
 import 'constants/extensions.dart';
+import 'constants/screens.dart';
 import 'pages/splash_page.dart';
 
 const Color themeColor = Color(0xff00bc56);
@@ -15,32 +16,25 @@ const Color themeColor = Color(0xff00bc56);
 String? packageVersion;
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
   );
   AssetPicker.registerObserve();
-  // Enables logging with the photo_manager.
-  PhotoManager.setLog(true);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  ThemeData _buildTheme(Brightness brightness) {
-    return ThemeData(
-      brightness: brightness,
-      primarySwatch: themeColor.swatch,
-      textSelectionTheme: const TextSelectionThemeData(cursorColor: themeColor),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      onGenerateTitle: (context) => context.l10n.appTitle,
-      theme: _buildTheme(Brightness.light),
-      darkTheme: _buildTheme(Brightness.dark),
+      title: 'WeChat Asset Picker Demo',
+      theme: ThemeData(
+        brightness: Screens.mediaQuery.platformBrightness,
+        primarySwatch: themeColor.swatch,
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: themeColor,
+        ),
+      ),
       home: const SplashPage(),
       builder: (BuildContext c, Widget? w) {
         return ScrollConfiguration(
@@ -48,8 +42,16 @@ class MyApp extends StatelessWidget {
           child: w!,
         );
       },
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalWidgetsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const <Locale>[
+        Locale('zh'), // Chinese
+        // Locale('iw'), // Hebrew
+      ],
+      locale: const Locale('zh'),
     );
   }
 }
@@ -58,10 +60,10 @@ class NoGlowScrollBehavior extends ScrollBehavior {
   const NoGlowScrollBehavior();
 
   @override
-  Widget buildOverscrollIndicator(
+  Widget buildViewportChrome(
     BuildContext context,
     Widget child,
-    ScrollableDetails details,
+    AxisDirection axisDirection,
   ) =>
       child;
 }

@@ -1,26 +1,25 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/4/6 15:07
+///
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wechat_picker_library/wechat_picker_library.dart';
 
 import '../../delegates/asset_picker_viewer_builder_delegate.dart';
+import 'locally_available_builder.dart';
 
 class ImagePageBuilder extends StatefulWidget {
   const ImagePageBuilder({
-    super.key,
+    Key? key,
     required this.asset,
     required this.delegate,
     this.previewThumbnailSize,
-  });
+  }) : super(key: key);
 
   /// Asset currently displayed.
   /// 展示的资源
@@ -31,7 +30,7 @@ class ImagePageBuilder extends StatefulWidget {
   final ThumbnailSize? previewThumbnailSize;
 
   @override
-  State<ImagePageBuilder> createState() => _ImagePageBuilderState();
+  _ImagePageBuilderState createState() => _ImagePageBuilderState();
 }
 
 class _ImagePageBuilderState extends State<ImagePageBuilder> {
@@ -41,19 +40,6 @@ class _ImagePageBuilderState extends State<ImagePageBuilder> {
   bool get _isOriginal => widget.previewThumbnailSize == null;
 
   bool get _isLivePhoto => widget.asset.isLivePhoto;
-
-  @override
-  void didUpdateWidget(ImagePageBuilder oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.asset != oldWidget.asset ||
-        widget.previewThumbnailSize != oldWidget.previewThumbnailSize) {
-      _isLocallyAvailable = false;
-      _controller
-        ?..pause()
-        ..dispose();
-      _controller = null;
-    }
-  }
 
   @override
   void dispose() {
@@ -87,7 +73,7 @@ class _ImagePageBuilderState extends State<ImagePageBuilder> {
   }
 
   void _play() {
-    if (_controller?.value.isInitialized ?? false) {
+    if (_controller?.value.isInitialized == true) {
       // Only impact when initialized.
       HapticFeedback.lightImpact();
       _controller?.play();
@@ -109,13 +95,17 @@ class _ImagePageBuilderState extends State<ImagePageBuilder> {
       fit: BoxFit.contain,
       mode: ExtendedImageMode.gesture,
       onDoubleTap: widget.delegate.updateAnimation,
-      initGestureConfigHandler: (ExtendedImageState state) => GestureConfig(
-        minScale: 1.0,
-        maxScale: 3.0,
-        animationMinScale: 0.6,
-        animationMaxScale: 4.0,
-        inPageView: true,
-      ),
+      initGestureConfigHandler: (ExtendedImageState state) {
+        return GestureConfig(
+          initialScale: 1.0,
+          minScale: 1.0,
+          maxScale: 3.0,
+          animationMinScale: 0.6,
+          animationMaxScale: 4.0,
+          cacheGesture: false,
+          inPageView: true,
+        );
+      },
       loadStateChanged: (ExtendedImageState state) {
         return widget.delegate.previewWidgetLoadStateChanged(
           context,
@@ -129,7 +119,7 @@ class _ImagePageBuilderState extends State<ImagePageBuilder> {
   Widget _buildLivePhotosWrapper(BuildContext context, AssetEntity asset) {
     return Stack(
       children: <Widget>[
-        if (_controller?.value.isInitialized ?? false)
+        if (_controller?.value.isInitialized == true)
           Center(
             child: AspectRatio(
               aspectRatio: _controller!.value.aspectRatio,
@@ -167,7 +157,6 @@ class _ImagePageBuilderState extends State<ImagePageBuilder> {
   @override
   Widget build(BuildContext context) {
     return LocallyAvailableBuilder(
-      key: ValueKey<String>(widget.asset.id),
       asset: widget.asset,
       isOriginal: _isOriginal,
       builder: (BuildContext context, AssetEntity asset) {

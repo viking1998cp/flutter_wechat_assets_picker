@@ -1,6 +1,7 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/7/8 12:32
+///
 
 /// Provide some special picker types to integrate
 /// un-common pick pattern.

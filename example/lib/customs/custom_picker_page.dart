@@ -1,37 +1,39 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/AlexV525)
+/// [Date] 2020-11-01 02:05
+///
 import 'package:flutter/material.dart';
 
 import '../constants/custom_pick_method.dart';
-import '../constants/extensions.dart';
 import 'pickers/directory_file_asset_picker.dart';
-import 'pickers/insta_asset_picker.dart';
 import 'pickers/multi_tabs_assets_picker.dart';
 
 class CustomPickersPage extends StatefulWidget {
-  const CustomPickersPage({super.key});
-
   @override
-  State<CustomPickersPage> createState() => _CustomPickerPageState();
+  _CustomPickerPageState createState() => _CustomPickerPageState();
 }
 
 class _CustomPickerPageState extends State<CustomPickersPage>
     with AutomaticKeepAliveClientMixin {
-  Widget tips(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Text(context.l10n.customPickerNotice),
+  Widget get tips {
+    return const Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Text(
+        'This page contains customized pickers with different asset types, '
+        'different UI layouts, or some use case for specific apps. '
+        'Contribute to add your custom picker are welcomed.',
+      ),
     );
   }
 
-  List<CustomPickMethod> pickMethods(BuildContext context) {
+  List<CustomPickMethod> get pickMethods {
     return <CustomPickMethod>[
       CustomPickMethod(
         icon: '🗄',
-        name: context.l10n.customPickerDirectoryAndFileName,
-        description: context.l10n.customPickerDirectoryAndFileDescription,
+        name: 'Directory+File picker',
+        description: 'The picker is built with `Directory` and `File` '
+            'as entities, which allows users to display/select `File` '
+            'through `Directory`.',
         method: (BuildContext context) => Navigator.of(context).push<void>(
           MaterialPageRoute<void>(
             builder: (_) => const DirectoryFileAssetPicker(),
@@ -40,18 +42,11 @@ class _CustomPickerPageState extends State<CustomPickersPage>
       ),
       CustomPickMethod(
         icon: '🔀',
-        name: context.l10n.customPickerMultiTabName,
-        description: context.l10n.customPickerMultiTabDescription,
+        name: 'Multi tab picker',
+        description: 'The picker contains multiple tab with different types of '
+            'assets for the picking at the same time.',
         method: (BuildContext context) => Navigator.of(context).push<void>(
           MaterialPageRoute<void>(builder: (_) => const MultiTabAssetPicker()),
-        ),
-      ),
-      CustomPickMethod(
-        icon: '📷',
-        name: context.l10n.customPickerInstagramLayoutName,
-        description: context.l10n.customPickerInstagramLayoutDescription,
-        method: (BuildContext context) => Navigator.of(context).push<void>(
-          MaterialPageRoute<void>(builder: (_) => const InstaAssetPicker()),
         ),
       ),
     ];
@@ -65,15 +60,18 @@ class _CustomPickerPageState extends State<CustomPickersPage>
     super.build(context);
     return Column(
       children: <Widget>[
-        tips(context),
-        Expanded(child: _MethodListView(pickMethods: pickMethods(context))),
+        tips,
+        Expanded(child: _MethodListView(pickMethods: pickMethods)),
       ],
     );
   }
 }
 
 class _MethodListView extends StatelessWidget {
-  const _MethodListView({required this.pickMethods});
+  const _MethodListView({
+    Key? key,
+    required this.pickMethods,
+  }) : super(key: key);
 
   final List<CustomPickMethod> pickMethods;
 
@@ -95,7 +93,7 @@ class _MethodListView extends StatelessWidget {
               child: Center(
                 child: Text(
                   model.icon,
-                  style: const TextStyle(fontSize: 28.0),
+                  style: const TextStyle(fontSize: 24.0),
                 ),
               ),
             ),
@@ -115,7 +113,7 @@ class _MethodListView extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     model.description,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.caption,
                     overflow: TextOverflow.fade,
                   ),
                 ],

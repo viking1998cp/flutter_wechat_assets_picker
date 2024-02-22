@@ -1,13 +1,12 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/3/31 16:27
+///
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-import '../constants/constants.dart';
 import '../constants/enums.dart';
 import '../constants/typedefs.dart';
 import '../delegates/asset_picker_viewer_builder_delegate.dart';
@@ -17,9 +16,9 @@ import 'asset_picker.dart';
 
 class AssetPickerViewer<Asset, Path> extends StatefulWidget {
   const AssetPickerViewer({
-    super.key,
+    Key? key,
     required this.builder,
-  });
+  }) : super(key: key);
 
   final AssetPickerViewerBuilderDelegate<Asset, Path> builder;
 
@@ -41,21 +40,14 @@ class AssetPickerViewer<Asset, Path> extends StatefulWidget {
     int? maxAssets,
     bool shouldReversePreview = false,
     AssetSelectPredicate<AssetEntity>? selectPredicate,
-    PermissionRequestOption permissionRequestOption =
-        const PermissionRequestOption(),
   }) async {
-    await AssetPicker.permissionCheck(requestOption: permissionRequestOption);
+    await AssetPicker.permissionCheck();
     final Widget viewer = AssetPickerViewer<AssetEntity, AssetPathEntity>(
       builder: DefaultAssetPickerViewerBuilderDelegate(
         currentIndex: currentIndex,
         previewAssets: previewAssets,
         provider: selectedAssets != null
-            ? AssetPickerViewerProvider<AssetEntity>(
-                selectedAssets,
-                maxAssets: maxAssets ??
-                    selectorProvider?.maxAssets ??
-                    defaultMaxAssetsCount,
-              )
+            ? AssetPickerViewerProvider<AssetEntity>(selectedAssets)
             : null,
         themeData: themeData,
         previewThumbnailSize: previewThumbnailSize,
@@ -84,10 +76,8 @@ class AssetPickerViewer<Asset, Path> extends StatefulWidget {
   static Future<List<A>?> pushToViewerWithDelegate<A, P>(
     BuildContext context, {
     required AssetPickerViewerBuilderDelegate<A, P> delegate,
-    PermissionRequestOption permissionRequestOption =
-        const PermissionRequestOption(),
   }) async {
-    await AssetPicker.permissionCheck(requestOption: permissionRequestOption);
+    await AssetPicker.permissionCheck();
     final Widget viewer = AssetPickerViewer<A, P>(builder: delegate);
     final PageRouteBuilder<List<A>> pageRoute = PageRouteBuilder<List<A>>(
       pageBuilder: (_, __, ___) => viewer,
@@ -111,12 +101,6 @@ class AssetPickerViewerState<Asset, Path>
   void initState() {
     super.initState();
     builder.initStateAndTicker(this, this);
-  }
-
-  @override
-  void didUpdateWidget(covariant AssetPickerViewer<Asset, Path> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    builder.didUpdateViewer(this, oldWidget, widget);
   }
 
   @override

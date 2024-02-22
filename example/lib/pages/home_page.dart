@@ -1,22 +1,25 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020-05-31 21:38
+///
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
-import '../constants/extensions.dart';
+import '../constants/screens.dart';
 import '../customs/custom_picker_page.dart';
 import '../main.dart';
 import 'multi_assets_page.dart';
 import 'single_assets_page.dart';
 
+bool get currentIsDark =>
+    Screens.mediaQuery.platformBrightness == Brightness.dark;
+
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -72,17 +75,15 @@ class _HomePageState extends State<HomePage> {
               Semantics(
                 sortKey: const OrdinalSortKey(0),
                 child: Text(
-                  context.l10n.appTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
+                  'WeChat Asset Picker',
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ),
               Semantics(
                 sortKey: const OrdinalSortKey(0.1),
                 child: Text(
-                  context.l10n.appVersion(
-                    packageVersion ?? context.l10n.appVersionUnknown,
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall,
+                  'Version: ${packageVersion ?? 'unknown'}',
+                  style: Theme.of(context).textTheme.caption,
                 ),
               ),
             ],
@@ -96,7 +97,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: Theme.of(context).brightness == Brightness.dark
+      value: currentIsDark
           ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -107,7 +108,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: PageView(
                   controller: controller,
-                  children: const <Widget>[
+                  children: <Widget>[
                     MultiAssetsPage(),
                     SingleAssetPage(),
                     CustomPickersPage(),
@@ -120,18 +121,18 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: selectIndex,
-          items: <BottomNavigationBarItem>[
+          items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: const Icon(Icons.photo_library),
-              label: context.l10n.navMulti,
+              icon: Icon(Icons.photo_library),
+              label: 'Multi',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.photo),
-              label: context.l10n.navSingle,
+              icon: Icon(Icons.photo),
+              label: 'Single',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.explore),
-              label: context.l10n.navCustom,
+              icon: Icon(Icons.explore),
+              label: 'Custom',
             ),
           ],
         ),

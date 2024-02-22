@@ -1,7 +1,7 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/AlexV525)
+/// [Date] 2022/2/14 13:25
+///
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -14,8 +14,8 @@ import 'enums.dart';
 class AssetPickerConfig {
   const AssetPickerConfig({
     this.selectedAssets,
-    this.maxAssets = defaultMaxAssetsCount,
-    this.pageSize = defaultAssetsPerPage,
+    this.maxAssets = 9,
+    this.pageSize = 80,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
     this.pathThumbnailSize = defaultPathThumbnailSize,
     this.previewThumbnailSize,
@@ -23,7 +23,6 @@ class AssetPickerConfig {
     this.specialPickerType,
     this.keepScrollOffset = false,
     this.sortPathDelegate,
-    this.sortPathsByModifiedDate = false,
     this.filterOptions,
     this.gridCount = 4,
     this.themeColor,
@@ -36,13 +35,11 @@ class AssetPickerConfig {
     this.shouldRevertGrid,
     this.limitedPermissionOverlayPredicate,
     this.pathNameBuilder,
-  })  : assert(
+  })  : assert(maxAssets >= 1, 'maxAssets must be greater than 1.'),
+        assert(
           pickerTheme == null || themeColor == null,
           'pickerTheme and themeColor cannot be set at the same time.',
         ),
-        assert(maxAssets > 0, 'maxAssets must be greater than 0.'),
-        assert(pageSize > 0, 'pageSize must be greater than 0.'),
-        assert(gridCount > 0, 'gridCount must be greater than 0.'),
         assert(
           pageSize % gridCount == 0,
           'pageSize must be a multiple of gridCount.',
@@ -128,22 +125,16 @@ class AssetPickerConfig {
   /// 选择器是否可以从同样的位置开始选择
   final bool keepScrollOffset;
 
-  /// @{macro wechat_assets_picker.delegates.SortPathDelegate}
+  /// Delegate to sort asset path entities.
+  /// 资源路径排序的实现
   final SortPathDelegate<AssetPathEntity>? sortPathDelegate;
-
-  /// {@template wechat_assets_picker.constants.AssetPickerConfig.sortPathsByModifiedDate}
-  /// Whether to allow sort delegates to sort paths with
-  /// [FilterOptionGroup.containsPathModified].
-  /// 是否结合 [FilterOptionGroup.containsPathModified] 进行路径排序
-  /// {@endtemplate}
-  final bool sortPathsByModifiedDate;
 
   /// Filter options for the picker.
   /// 选择器的筛选条件
   ///
   /// Will be merged into the base configuration.
   /// 将会与基础条件进行合并。
-  final PMFilter? filterOptions;
+  final FilterOptionGroup? filterOptions;
 
   /// Assets count for the picker.
   /// 资源网格数
@@ -182,8 +173,8 @@ class AssetPickerConfig {
   /// Whether the assets grid should revert.
   /// 判断资源网格是否需要倒序排列
   ///
-  /// [Null] means judging by Apple OS.
-  /// 使用 [Null] 即使用是否为 Apple 系统进行判断。
+  /// [Null] means judging by [isAppleOS].
+  /// 使用 [Null] 即使用 [isAppleOS] 进行判断。
   final bool? shouldRevertGrid;
 
   /// {@macro wechat_assets_picker.LimitedPermissionOverlayPredicate}

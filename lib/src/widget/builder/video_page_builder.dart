@@ -1,25 +1,26 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/4/6 18:58
+///
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wechat_picker_library/wechat_picker_library.dart';
 
-import '../../constants/constants.dart';
 import '../../delegates/asset_picker_viewer_builder_delegate.dart';
-import '../../internals/singleton.dart';
+import '../../internal/methods.dart';
+import '../../internal/singleton.dart';
+import '../scale_text.dart';
+import 'locally_available_builder.dart';
 
 class VideoPageBuilder extends StatefulWidget {
   const VideoPageBuilder({
-    super.key,
+    Key? key,
     required this.asset,
     required this.delegate,
     this.hasOnlyOneVideoAndMoment = false,
-  });
+  }) : super(key: key);
 
   /// Asset currently displayed.
   /// 展示的资源
@@ -32,7 +33,7 @@ class VideoPageBuilder extends StatefulWidget {
   final bool hasOnlyOneVideoAndMoment;
 
   @override
-  State<VideoPageBuilder> createState() => _VideoPageBuilderState();
+  _VideoPageBuilderState createState() => _VideoPageBuilderState();
 }
 
 class _VideoPageBuilderState extends State<VideoPageBuilder> {
@@ -61,23 +62,6 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
   bool _isLocallyAvailable = false;
 
   @override
-  void didUpdateWidget(VideoPageBuilder oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.asset != oldWidget.asset) {
-      _controller
-        ?..removeListener(videoPlayerListener)
-        ..pause()
-        ..dispose();
-      _controller = null;
-      hasLoaded = false;
-      hasErrorWhenInitializing = false;
-      isPlaying.value = false;
-      _isInitializing = false;
-      _isLocallyAvailable = false;
-    }
-  }
-
-  @override
   void dispose() {
     /// Remove listener from the controller and dispose it when widget dispose.
     /// 部件销毁时移除控制器的监听并销毁控制器。
@@ -101,11 +85,10 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
       }
       return;
     }
-    final Uri uri = Uri.parse(url);
     if (Platform.isAndroid) {
-      _controller = VideoPlayerController.contentUri(uri);
+      _controller = VideoPlayerController.contentUri(Uri.parse(url));
     } else {
-      _controller = VideoPlayerController.networkUrl(uri);
+      _controller = VideoPlayerController.network(url);
     }
     try {
       await controller.initialize();
@@ -116,15 +99,8 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
       if (widget.hasOnlyOneVideoAndMoment) {
         controller.play();
       }
-    } catch (e, s) {
-      FlutterError.presentError(
-        FlutterErrorDetails(
-          exception: e,
-          stack: s,
-          library: packageName,
-          silent: true,
-        ),
-      );
+    } catch (e) {
+      realDebugPrint('Error when initialize video controller: $e');
       hasErrorWhenInitializing = true;
     } finally {
       if (mounted) {
@@ -147,13 +123,12 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
   /// Normally it only switches play state for the player. If the video reaches the end,
   /// then click the button will make the video replay.
   /// 一般来说按钮只切换播放暂停。当视频播放结束时，点击按钮将从头开始播放。
-  Future<void> playButtonCallback(BuildContext context) async {
+  Future<void> playButtonCallback() async {
     if (isPlaying.value) {
       controller.pause();
       return;
     }
-    if (widget.delegate.isDisplayingDetail.value &&
-        !MediaQuery.accessibleNavigationOf(context)) {
+    if (widget.delegate.isDisplayingDetail.value) {
       widget.delegate.switchDisplayingDetail(value: false);
     }
     if (controller.value.duration == controller.value.position) {
@@ -182,19 +157,19 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
             valueListenable: isPlaying,
             builder: (_, bool value, __) => GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: value || MediaQuery.accessibleNavigationOf(context)
-                  ? () => playButtonCallback(context)
+              onTap: value
+                  ? playButtonCallback
                   : widget.delegate.switchDisplayingDetail,
               child: Center(
                 child: AnimatedOpacity(
                   duration: kThemeAnimationDuration,
                   opacity: value ? 0.0 : 1.0,
                   child: GestureDetector(
-                    onTap: () => playButtonCallback(context),
+                    onTap: playButtonCallback,
                     child: DecoratedBox(
                       decoration: const BoxDecoration(
                         boxShadow: <BoxShadow>[
-                          BoxShadow(color: Colors.black12),
+                          BoxShadow(color: Colors.black12)
                         ],
                         shape: BoxShape.circle,
                       ),
@@ -218,7 +193,6 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
   @override
   Widget build(BuildContext context) {
     return LocallyAvailableBuilder(
-      key: ValueKey<String>(widget.asset.id),
       asset: widget.asset,
       builder: (BuildContext context, AssetEntity asset) {
         if (hasErrorWhenInitializing) {
@@ -237,10 +211,15 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
           return const SizedBox.shrink();
         }
         return Semantics(
-          onLongPress: () => playButtonCallback(context),
+          onLongPress: playButtonCallback,
           onLongPressHint:
               Singleton.textDelegate.semanticsTextDelegate.sActionPlayHint,
-          child: _contentBuilder(context),
+          child: GestureDetector(
+            onLongPress: MediaQuery.of(context).accessibleNavigation
+                ? playButtonCallback
+                : null,
+            child: _contentBuilder(context),
+          ),
         );
       },
     );

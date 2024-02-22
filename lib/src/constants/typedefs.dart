@@ -1,15 +1,11 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/AlexV525)
+/// [Date] 2022/3/3 09:55
+///
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart' show PermissionState;
-import 'package:provider/provider.dart';
-
-/// {@nodoc}
-typedef CNP<T extends ChangeNotifier?> = ChangeNotifierProvider<T>;
 
 /// {@template wechat_assets_picker.LoadingIndicatorBuilder}
 /// Build the loading indicator with the given [isAssetsEmpty].

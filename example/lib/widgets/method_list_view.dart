@@ -1,23 +1,23 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/AlexV525)
+/// [Date] 2021/7/13 11:00
+///
 import 'package:flutter/material.dart';
 
 import '../constants/picker_method.dart';
 
 class MethodListView extends StatefulWidget {
   const MethodListView({
-    super.key,
+    Key? key,
     required this.pickMethods,
     required this.onSelectMethod,
-  });
+  }) : super(key: key);
 
   final List<PickMethod> pickMethods;
   final void Function(PickMethod method) onSelectMethod;
 
   @override
-  State<MethodListView> createState() => _MethodListViewState();
+  _MethodListViewState createState() => _MethodListViewState();
 }
 
 class _MethodListViewState extends State<MethodListView> {
@@ -42,7 +42,7 @@ class _MethodListViewState extends State<MethodListView> {
               child: Center(
                 child: Text(
                   model.icon,
-                  style: const TextStyle(fontSize: 28.0),
+                  style: const TextStyle(fontSize: 24.0),
                 ),
               ),
             ),
@@ -64,7 +64,7 @@ class _MethodListViewState extends State<MethodListView> {
                   const SizedBox(height: 5),
                   Text(
                     model.description,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.caption,
                   ),
                 ],
               ),
@@ -84,7 +84,7 @@ class _MethodListViewState extends State<MethodListView> {
       ).copyWith(bottom: 10.0),
       child: Scrollbar(
         controller: _controller,
-        thumbVisibility: true,
+        isAlwaysShown: true,
         radius: const Radius.circular(999),
         child: ListView.builder(
           controller: _controller,

@@ -1,17 +1,17 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/AlexV525)
+/// [Date] 2021/7/13 10:40
+///
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity, AssetEntityImageProvider, AssetType;
 
 class AssetWidgetBuilder extends StatelessWidget {
   const AssetWidgetBuilder({
-    super.key,
+    Key? key,
     required this.entity,
     required this.isDisplayingDetail,
-  });
+  }) : super(key: key);
 
   final AssetEntity entity;
   final bool isDisplayingDetail;
@@ -80,10 +80,14 @@ class AssetWidgetBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return switch (entity.type) {
-      AssetType.audio => _audioAssetWidget(context),
-      AssetType.video => _videoAssetWidget(context),
-      AssetType.image || AssetType.other => _imageAssetWidget(context),
-    };
+    switch (entity.type) {
+      case AssetType.audio:
+        return _audioAssetWidget(context);
+      case AssetType.video:
+        return _videoAssetWidget(context);
+      case AssetType.image:
+      case AssetType.other:
+        return _imageAssetWidget(context);
+    }
   }
 }

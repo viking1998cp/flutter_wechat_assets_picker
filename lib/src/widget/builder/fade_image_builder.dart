@@ -1,11 +1,11 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/Alex525)
+/// [Date] 2020/4/1 13:07
+///
 import 'package:flutter/material.dart';
 
 class FadeImageBuilder extends StatelessWidget {
-  const FadeImageBuilder({super.key, required this.child});
+  const FadeImageBuilder({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
 

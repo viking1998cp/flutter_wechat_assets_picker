@@ -1,23 +1,22 @@
-// Copyright 2019 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by an Apache license that can be found
-// in the LICENSE file.
-
+///
+/// [Author] Alex (https://github.com/AlexV525)
+/// [Date] 2021/7/13 10:51
+///
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity, AssetPicker, AssetPickerViewer;
-import 'package:wechat_assets_picker_demo/constants/extensions.dart';
 
 import '../main.dart' show themeColor;
 import 'asset_widget_builder.dart';
 
 class SelectedAssetsListView extends StatelessWidget {
   const SelectedAssetsListView({
-    super.key,
+    Key? key,
     required this.assets,
     required this.isDisplayingDetail,
     required this.onResult,
     required this.onRemoveAsset,
-  });
+  }) : super(key: key);
 
   final List<AssetEntity> assets;
   final ValueNotifier<bool> isDisplayingDetail;
@@ -67,7 +66,7 @@ class SelectedAssetsListView extends StatelessWidget {
     );
   }
 
-  Widget selectedAssetsListView(BuildContext context) {
+  Widget get selectedAssetsListView {
     return Expanded(
       child: ListView.builder(
         shrinkWrap: true,
@@ -75,7 +74,7 @@ class SelectedAssetsListView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         scrollDirection: Axis.horizontal,
         itemCount: assets.length,
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (BuildContext c, int index) {
           return Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 8.0,
@@ -85,14 +84,14 @@ class SelectedAssetsListView extends StatelessWidget {
               aspectRatio: 1.0,
               child: Stack(
                 children: <Widget>[
-                  Positioned.fill(child: _selectedAssetWidget(context, index)),
+                  Positioned.fill(child: _selectedAssetWidget(c, index)),
                   ValueListenableBuilder<bool>(
                     valueListenable: isDisplayingDetail,
                     builder: (_, bool value, __) => AnimatedPositioned(
                       duration: kThemeAnimationDuration,
                       top: value ? 6.0 : -30.0,
                       right: value ? 6.0 : -30.0,
-                      child: _selectedAssetDeleteButton(context, index),
+                      child: _selectedAssetDeleteButton(c, index),
                     ),
                   ),
                 ],
@@ -129,7 +128,7 @@ class SelectedAssetsListView extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Text(context.l10n.selectedAssetsText),
+                    const Text('Selected Assets'),
                     if (assets.isNotEmpty)
                       Padding(
                         padding: const EdgeInsetsDirectional.only(start: 10.0),
@@ -142,7 +141,7 @@ class SelectedAssetsListView extends StatelessWidget {
                 ),
               ),
             ),
-            selectedAssetsListView(context),
+            selectedAssetsListView,
           ],
         ),
       ),
